@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Lucro para Motoristas de App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            min-height: 100vh;
+        }
+
+        .input-group {
+            transition: all 0.3s ease;
+        }
+
+        .input-group:hover {
+            transform: translateY(-2px);
+        }
+
+        .result-card {
+            transition: all 0.3s ease;
+        }
+
+        .result-card:hover {
+            transform: scale(1.02);
+        }
+
+        .tab-active {
+            border-bottom: 3px solid #4f46e5;
+            color: #4f46e5;
+        }
+
+        .history-item {
+            transition: all 0.2s ease;
+        }
+
+        .history-item:hover {
+            background-color: #f3f4f6;
+        }
+
+        .chart-container {
+            height: 250px;
+            position: relative;
+        }
+
+        .chart-bar {
+            position: absolute;
+            bottom: 0;
+            width: 30px;
+            background: linear-gradient(to top, #4f46e5, #7c3aed);
+            border-radius: 4px 4px 0 0;
+            transition: height 1s ease;
+        }
+    </style>
+</head>
+
+<body class="p-4">
+    <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-xl overflow-hidden">
+        <div class="bg-indigo-600 p-6 text-white">
+            <h1 class="text-3xl font-bold text-center">Calculadora de Lucro para Motoristas de App</h1>
+            <p class="text-center mt-2 text-indigo-100">Calcule e acompanhe seus ganhos ao longo do tempo</p>
+        </div>
+
+        <!-- Navegação por abas -->
+        <div class="flex border-b">
+            <button id="tab-calculator" class="flex-1 py-4 px-6 font-medium text-center tab-active">
+                <i class="fas fa-calculator mr-2"></i>Calculadora
+            </button>
+            <button id="tab-history" class="flex-1 py-4 px-6 font-medium text-center text-gray-500">
+                <i class="fas fa-history mr-2"></i>Histórico
+            </button>
+            <button id="tab-stats" class="flex-1 py-4 px-6 font-medium text-center text-gray-500">
+                <i class="fas fa-chart-bar mr-2"></i>Estatísticas
+            </button>
+        </div>
+
+        <!-- Seção da Calculadora -->
+        <div id="section-calculator" class="p-6">
+            <form id="calculatorForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="md:col-span-2">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Informações da Corrida</h2>
+                </div>
+
+                <div class="input-group">
+                    <label class="block text-gray-700 font-medium mb-2" for="data">Data</label>
+                    <input type="date" id="data"
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        required>
+                </div>
+
+                <div class="input-group">
+                    <label class="block text-gray-700 font-medium mb-2" for="descricao">Descrição (opcional)</label>
+                    <input type="text" id="descricao"
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="Ex: Corrida aeroporto">
+                </div>
+
+                <div class="input-group">
+                    <label class="block text-gray-700 font-medium mb-2" for="valorRecebido">Valor recebido (R$)</label>
+                    <input type="number" id="valorRecebido"
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        step="0.01" required>
+                </div>
+
+                <div class="input-group">
+                    <label class="block text-gray-700 font-medium mb-2" for="kmPercorrido">Quilômetros
+                        percorridos</label>
+                    <input type="number" id="kmPercorrido"
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        step="0.1" required>
+                </div>
+
+                <div class="md:col-span-2">
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2 mt-4">Custos Operacionais</h2>
+                </div>
+
+                <div class="input-group">
+                    <label class="block text-gray-700 font-medium mb-2" for="precoCombustivel">Preço do combustível
+                        (R$/litro)</label>
+                    <input type="number" id="precoCombustivel"
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        step="0.01" required>
+                </div>
+
+                <div class="input-group">
+                    <label class="block text-gray-700 font-medium mb-2" for="consumoMedio">Consumo médio
+                        (km/litro)</label>
+                    <input type="number" id="consumoMedio"
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        step="0.1" required>
+                </div>
+
+                <div class="input-group">
+                    <label class="block text-gray-700 font-medium mb-2" for="custoManutencao">Custo de manutenção
+                        (R$/km)</label>
+                    <input type="number" id="custoManutencao"
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        step="0.01" value="0.15">
+                    <p class="text-xs text-gray-500 mt-1">Inclui óleo, pneus, revisões, etc.</p>
+                </div>
+
+                <div class="input-group">
+                    <label class="block text-gray-700 font-medium mb-2" for="custoDepreciacao">Depreciação do veículo
+                        (R$/km)</label>
+                    <input type="number" id="custoDepreciacao"
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        step="0.01" value="0.20">
+                    <p class="text-xs text-gray-500 mt-1">Valor estimado de desvalorização</p>
+                </div>
+
+                
+                <div class="input-group">
+                    <label class="block text-gray-700 font-medium mb-2" for="outrosCustos">Outros custos (R$)</label>
+                    <input type="number" id="outrosCustos"
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        step="0.01" value="0">
+                    <p class="text-xs text-gray-500 mt-1">Estacionamento, lavagem, etc.</p>
+                </div>
+
+                <div class="md:col-span-2 mt-4">
+                    <button type="submit"
+                        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300 ease-in-out transform hover:scale-105">
+                        Calcular Resultados
+                    </button>
+                </div>
+            </form>
+
+            <div id="results" class="mt-8 hidden">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Resultados da Análise</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="result-card bg-gradient-to-br from-red-50 to-red-100 p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-semibold text-red-800 mb-3">Custos Totais</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-700">Combustível:</span>
+                                <span id="custoCombustivel" class="font-medium">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-700">Manutenção:</span>
+                                <span id="custoManutencaoTotal" class="font-medium">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-700">Depreciação:</span>
+                                <span id="custoDepreciacaoTotal" class="font-medium">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-700">Taxa do aplicativo:</span>
+                                <span id="taxaAplicativoTotal" class="font-medium">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-700">Outros custos:</span>
+                                <span id="outrosCustosTotal" class="font-medium">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between pt-2 border-t border-red-200">
+                                <span class="text-gray-800 font-bold">CUSTO TOTAL:</span>
+                                <span id="custoTotal" class="font-bold text-red-700">R$ 0,00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="result-card bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-semibold text-green-800 mb-3">Análise Financeira</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-700">Valor recebido:</span>
+                                <span id="valorRecebidoTotal" class="font-medium">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-700">Custo por km:</span>
+                                <span id="custoPorKm" class="font-medium">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-700">Lucro por km:</span>
+                                <span id="lucroPorKm" class="font-medium">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between pt-2 border-t border-green-200">
+                                <span class="text-gray-800 font-bold">LUCRO LÍQUIDO:</span>
+                                <span id="lucroLiquido" class="font-bold text-green-700">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-700">Margem de lucro:</span>
+                                <span id="margemLucro" class="font-medium">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="resultMessage" class="mt-6 p-4 rounded-lg text-center font-medium"></div>
+
+                <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button id="saveResult"
+                        class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out">
+                        <i class="fas fa-save mr-2"></i>Salvar no Histórico
+                    </button>
+                    <button id="newCalculation"
+                        class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out">
+                        <i class="fas fa-calculator mr-2"></i>Nova Calculadora
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção do Histórico -->
+        <div id="section-history" class="p-6 hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Histórico de Corridas</h2>
+                <div>
+                    <button id="clearHistory"
+                        class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out">
+                        <i class="fas fa-trash-alt mr-2"></i>Limpar Histórico
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <input type="text" id="searchHistory"
+                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    placeholder="Buscar por data ou descrição...">
+            </div>
+
+            <div id="historyList" class="space-y-4 max-h-[500px] overflow-y-auto">
+                <!-- O histórico será preenchido dinamicamente -->
+                <div class="text-center text-gray-500 py-8">
+                    Nenhum registro encontrado. Calcule e salve suas corridas para visualizá-las aqui.
+                </div>
+            </div>
+        </div>
+
+        <!-- Seção de Estatísticas -->
+        <div id="section-stats" class="p-6 hidden">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Resumo Financeiro</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white p-4 rounded-xl shadow-md border-l-4 border-green-500">
+                        <h3 class="text-sm font-medium text-gray-500">Ganho Total</h3>
+                        <p id="stats-ganho-total" class="text-2xl font-bold text-gray-800">R$ 0,00</p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl shadow-md border-l-4 border-red-500">
+                        <h3 class="text-sm font-medium text-gray-500">Custo Total</h3>
+                        <p id="stats-custo-total" class="text-2xl font-bold text-gray-800">R$ 0,00</p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl shadow-md border-l-4 border-blue-500">
+                        <h3 class="text-sm font-medium text-gray-500">Lucro Líquido</h3>
+                        <p id="stats-lucro-total" class="text-2xl font-bold text-gray-800">R$ 0,00</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-gray-800">Lucro por Período</h2>
+                    <div>
+                        <select id="stats-period"
+                            class="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="week">Últimos 7 dias</option>
+                            <option value="month">Último mês</option>
+                            <option value="year">Último ano</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="bg-white p-4 rounded-xl shadow-md">
+                    <div id="chart-container" class="chart-container flex items-end justify-around">
+                        <!-- Os gráficos serão preenchidos dinamicamente -->
+                        <div class="text-center text-gray-500 w-full">
+                            Nenhum dado disponível para exibir o gráfico.
+                        </div>
+                    </div>
+                    <div id="chart-labels" class="flex justify-around mt-2 text-xs text-gray-500">
+                        <!-- Labels serão preenchidas dinamicamente -->
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Métricas de Desempenho</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-white p-4 rounded-xl shadow-md">
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">Média de Lucro por Corrida</h3>
+                        <p id="stats-media-lucro" class="text-xl font-bold text-gray-800">R$ 0,00</p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl shadow-md">
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">Média de Lucro por KM</h3>
+                        <p id="stats-media-lucro-km" class="text-xl font-bold text-gray-800">R$ 0,00</p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl shadow-md">
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">Total de KM Percorridos</h3>
+                        <p id="stats-total-km" class="text-xl font-bold text-gray-800">0 km</p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl shadow-md">
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">Margem de Lucro Média</h3>
+                        <p id="stats-margem-media" class="text-xl font-bold text-gray-800">0%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Definir data atual no campo de data
+            document.getElementById('data').valueAsDate = new Date();
+
+            // Elementos do DOM
+            const form = document.getElementById('calculatorForm');
+            const results = document.getElementById('results');
+            const newCalculationBtn = document.getElementById('newCalculation');
+            const saveResultBtn = document.getElementById('saveResult');
+            const clearHistoryBtn = document.getElementById('clearHistory');
+            const searchHistoryInput = document.getElementById('searchHistory');
+            const statsPeriodSelect = document.getElementById('stats-period');
+
+            // Elementos de navegação
+            const tabCalculator = document.getElementById('tab-calculator');
+            const tabHistory = document.getElementById('tab-history');
+            const tabStats = document.getElementById('tab-stats');
+            const sectionCalculator = document.getElementById('section-calculator');
+            const sectionHistory = document.getElementById('section-history');
+            const sectionStats = document.getElementById('section-stats');
+
+            // Variáveis para armazenar os resultados atuais
+            let currentResults = null;
+
+            // Inicializar o armazenamento local se não existir
+            if (!localStorage.getItem('driverAppHistory')) {
+                localStorage.setItem('driverAppHistory', JSON.stringify([]));
+            }
+
+            // Navegação por abas
+            tabCalculator.addEventListener('click', function () {
+                showTab('calculator');
+            });
+
+            tabHistory.addEventListener('click', function () {
+                showTab('history');
+                renderHistory();
+            });
+
+            tabStats.addEventListener('click', function () {
+                showTab('stats');
+                renderStats();
+            });
+
+            // Função para mostrar a aba selecionada
+            function showTab(tabName) {
+                // Resetar todas as abas
+                [tabCalculator, tabHistory, tabStats].forEach(tab => {
+                    tab.classList.remove('tab-active');
+                    tab.classList.add('text-gray-500');
+                });
+
+                [sectionCalculator, sectionHistory, sectionStats].forEach(section => {
+                    section.classList.add('hidden');
+                });
+
+                // Ativar a aba selecionada
+                if (tabName === 'calculator') {
+                    tabCalculator.classList.add('tab-active');
+                    tabCalculator.classList.remove('text-gray-500');
+                    sectionCalculator.classList.remove('hidden');
+                } else if (tabName === 'history') {
+                    tabHistory.classList.add('tab-active');
+                    tabHistory.classList.remove('text-gray-500');
+                    sectionHistory.classList.remove('hidden');
+                } else if (tabName === 'stats') {
+                    tabStats.classList.add('tab-active');
+                    tabStats.classList.remove('text-gray-500');
+                    sectionStats.classList.remove('hidden');
+                }
+            }
+
+            // Manipuladores de eventos
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                currentResults = calculateResults();
+                form.classList.add('hidden');
+                results.classList.remove('hidden');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            newCalculationBtn.addEventListener('click', function () {
+                form.classList.remove('hidden');
+                results.classList.add('hidden');
+            });
+
+            saveResultBtn.addEventListener('click', function () {
+                if (currentResults) {
+                    saveToHistory(currentResults);
+                    showNotification('Corrida salva com sucesso!', 'success');
+
+                    // Atualizar histórico e estatísticas
+                    renderHistory();
+                    renderStats();
+                }
+            });
+
+            clearHistoryBtn.addEventListener('click', function () {
+                if (confirm('Tem certeza que deseja limpar todo o histórico? Esta ação não pode ser desfeita.')) {
+                    localStorage.setItem('driverAppHistory', JSON.stringify([]));
+                    renderHistory();
+                    renderStats();
+                    showNotification('Histórico limpo com sucesso!', 'info');
+                }
+            });
+
+            searchHistoryInput.addEventListener('input', function () {
+                renderHistory(this.value);
+            });
+
+            statsPeriodSelect.addEventListener('change', function () {
+                renderStats();
+            });
+
+            // Função para calcular os resultados
+            function calculateResults() {
+                // Obter valores do formulário
+                const data = document.getElementById('data').value;
+                const descricao = document.getElementById('descricao').value || 'Corrida';
+                const valorRecebido = parseFloat(document.getElementById('valorRecebido').value);
+                const kmPercorrido = parseFloat(document.getElementById('kmPercorrido').value);
+                const precoCombustivel = parseFloat(document.getElementById('precoCombustivel').value);
+                const consumoMedio = parseFloat(document.getElementById('consumoMedio').value);
+                const custoManutencao = parseFloat(document.getElementById('custoManutencao').value);
+                const custoDepreciacao = parseFloat(document.getElementById('custoDepreciacao').value);
+                const taxaAplicativo = parseFloat(document.getElementById('taxaAplicativo').value) / 100;
+                const outrosCustos = parseFloat(document.getElementById('outrosCustos').value);
+
+                // Calcular custos
+                const litrosUsados = kmPercorrido / consumoMedio;
+                const custoCombustivel = litrosUsados * precoCombustivel;
+                const custoManutencaoTotal = kmPercorrido * custoManutencao;
+                const custoDepreciacaoTotal = kmPercorrido * custoDepreciacao;
+                const taxaAplicativoTotal = valorRecebido * taxaAplicativo;
+
+                const custoTotal = custoCombustivel + custoManutencaoTotal + custoDepreciacaoTotal + taxaAplicativoTotal + outrosCustos;
+                const lucroLiquido = valorRecebido - custoTotal;
+                const custoPorKm = custoTotal / kmPercorrido;
+                const lucroPorKm = lucroLiquido / kmPercorrido;
+                const margemLucro = (lucroLiquido / valorRecebido) * 100;
+
+                // Atualizar resultados na interface
+                document.getElementById('custoCombustivel').textContent = `R$ ${custoCombustivel.toFixed(2)}`;
+                document.getElementById('custoManutencaoTotal').textContent = `R$ ${custoManutencaoTotal.toFixed(2)}`;
+                document.getElementById('custoDepreciacaoTotal').textContent = `R$ ${custoDepreciacaoTotal.toFixed(2)}`;
+                document.getElementById('taxaAplicativoTotal').textContent = `R$ ${taxaAplicativoTotal.toFixed(2)}`;
+                document.getElementById('outrosCustosTotal').textContent = `R$ ${outrosCustos.toFixed(2)}`;
+                document.getElementById('custoTotal').textContent = `R$ ${custoTotal.toFixed(2)}`;
+
+                document.getElementById('valorRecebidoTotal').textContent = `R$ ${valorRecebido.toFixed(2)}`;
+                document.getElementById('custoPorKm').textContent = `R$ ${custoPorKm.toFixed(2)}`;
+                document.getElementById('lucroPorKm').textContent = `R$ ${lucroPorKm.toFixed(2)}`;
+                document.getElementById('lucroLiquido').textContent = `R$ ${lucroLiquido.toFixed(2)}`;
+                document.getElementById('margemLucro').textContent = `${margemLucro.toFixed(1)}%`;
+
+                // Mensagem de análise
+                const resultMessage = document.getElementById('resultMessage');
+                if (lucroLiquido <= 0) {
+                    resultMessage.className = 'mt-6 p-4 rounded-lg text-center font-medium bg-red-100 text-red-800';
+                    resultMessage.textContent = 'Atenção! Esta corrida resultou em prejuízo. Considere revisar seus custos ou buscar tarifas melhores.';
+                } else if (margemLucro < 15) {
+                    resultMessage.className = 'mt-6 p-4 rounded-lg text-center font-medium bg-yellow-100 text-yellow-800';
+                    resultMessage.textContent = 'Sua margem de lucro está baixa. Considere estratégias para reduzir custos ou aumentar receitas.';
+                } else {
+                    resultMessage.className = 'mt-6 p-4 rounded-lg text-center font-medium bg-green-100 text-green-800';
+                    resultMessage.textContent = 'Ótimo trabalho! Sua corrida foi lucrativa com uma boa margem de lucro.';
+                }
+
+                // Retornar os resultados para salvar no histórico
+                return {
+                    id: Date.now().toString(),
+                    data,
+                    descricao,
+                    valorRecebido,
+                    kmPercorrido,
+                    precoCombustivel,
+                    consumoMedio,
+                    custoManutencao,
+                    custoDepreciacao,
+                    taxaAplicativo: taxaAplicativo * 100,
+                    outrosCustos,
+                    custoCombustivel,
+                    custoManutencaoTotal,
+                    custoDepreciacaoTotal,
+                    taxaAplicativoTotal,
+                    custoTotal,
+                    lucroLiquido,
+                    custoPorKm,
+                    lucroPorKm,
+                    margemLucro,
+                    timestamp: Date.now()
+                };
+            }
+
+            // Função para salvar no histórico
+            function saveToHistory(results) {
+                const history = JSON.parse(localStorage.getItem('driverAppHistory')) || [];
+                history.push(results);
+                localStorage.setItem('driverAppHistory', JSON.stringify(history));
+            }
+
+            // Função para renderizar o histórico
+            function renderHistory(searchTerm = '') {
+                const historyList = document.getElementById('historyList');
+                const history = JSON.parse(localStorage.getItem('driverAppHistory')) || [];
+
+                // Filtrar por termo de busca
+                const filteredHistory = history.filter(item => {
+                    const searchLower = searchTerm.toLowerCase();
+                    return item.data.toLowerCase().includes(searchLower) ||
+                        item.descricao.toLowerCase().includes(searchLower);
+                });
+
+                // Ordenar por data (mais recente primeiro)
+                filteredHistory.sort((a, b) => new Date(b.data) - new Date(a.data));
+
+                if (filteredHistory.length === 0) {
+                    historyList.innerHTML = `
+                        <div class="text-center text-gray-500 py-8">
+                            ${searchTerm ? 'Nenhum resultado encontrado para sua busca.' : 'Nenhum registro encontrado. Calcule e salve suas corridas para visualizá-las aqui.'}
+                        </div>
+                    `;
+                    return;
+                }
+
+                historyList.innerHTML = '';
+
+                filteredHistory.forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.className = 'history-item bg-white rounded-lg shadow-md p-4 border-l-4 ' +
+                        (item.lucroLiquido >= 0 ? 'border-green-500' : 'border-red-500');
+
+                    const formattedDate = new Date(item.data).toLocaleDateString('pt-BR');
+
+                    historyItem.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h3 class="font-bold text-gray-800">${item.descricao}</h3>
+                                <p class="text-sm text-gray-500">${formattedDate} • ${item.kmPercorrido.toFixed(1)} km</p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button class="view-details text-blue-600 hover:text-blue-800" data-id="${item.id}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="delete-item text-red-600 hover:text-red-800" data-id="${item.id}">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex justify-between mt-3">
+                            <div>
+                                <p class="text-sm text-gray-600">Valor recebido</p>
+                                <p class="font-medium">R$ ${item.valorRecebido.toFixed(2)}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Custo total</p>
+                                <p class="font-medium">R$ ${item.custoTotal.toFixed(2)}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Lucro líquido</p>
+                                <p class="font-medium ${item.lucroLiquido >= 0 ? 'text-green-600' : 'text-red-600'}">
+                                    R$ ${item.lucroLiquido.toFixed(2)}
+                                </p>
+                            </div>
+                        </div>
+                    `;
+
+                    historyList.appendChild(historyItem);
+
+                    // Adicionar eventos aos botões
+                    historyItem.querySelector('.view-details').addEventListener('click', function () {
+                        const id = this.getAttribute('data-id');
+                        viewHistoryDetails(id);
+                    });
+
+                    historyItem.querySelector('.delete-item').addEventListener('click', function () {
+                        const id = this.getAttribute('data-id');
+                        deleteHistoryItem(id);
+                    });
+                });
+            }
+
+            // Função para visualizar detalhes de um item do histórico
+            function viewHistoryDetails(id) {
+                const history = JSON.parse(localStorage.getItem('driverAppHistory')) || [];
+                const item = history.find(item => item.id === id);
+
+                if (!item) return;
+
+                // Preencher o formulário com os dados do item
+                document.getElementById('data').value = item.data;
+                document.getElementById('descricao').value = item.descricao;
+                document.getElementById('valorRecebido').value = item.valorRecebido;
+                document.getElementById('kmPercorrido').value = item.kmPercorrido;
+                document.getElementById('precoCombustivel').value = item.precoCombustivel;
+                document.getElementById('consumoMedio').value = item.consumoMedio;
+                document.getElementById('custoManutencao').value = item.custoManutencao;
+                document.getElementById('custoDepreciacao').value = item.custoDepreciacao;
+                document.getElementById('taxaAplicativo').value = item.taxaAplicativo;
+                document.getElementById('outrosCustos').value = item.outrosCustos;
+
+                // Atualizar os resultados
+                document.getElementById('custoCombustivel').textContent = `R$ ${item.custoCombustivel.toFixed(2)}`;
+                document.getElementById('custoManutencaoTotal').textContent = `R$ ${item.custoManutencaoTotal.toFixed(2)}`;
+                document.getElementById('custoDepreciacaoTotal').textContent = `R$ ${item.custoDepreciacaoTotal.toFixed(2)}`;
+                document.getElementById('taxaAplicativoTotal').textContent = `R$ ${item.taxaAplicativoTotal.toFixed(2)}`;
+                document.getElementById('outrosCustosTotal').textContent = `R$ ${item.outrosCustos.toFixed(2)}`;
+                document.getElementById('custoTotal').textContent = `R$ ${item.custoTotal.toFixed(2)}`;
+
+                document.getElementById('valorRecebidoTotal').textContent = `R$ ${item.valorRecebido.toFixed(2)}`;
+                document.getElementById('custoPorKm').textContent = `R$ ${item.custoPorKm.toFixed(2)}`;
+                document.getElementById('lucroPorKm').textContent = `R$ ${item.lucroPorKm.toFixed(2)}`;
+                document.getElementById('lucroLiquido').textContent = `R$ ${item.lucroLiquido.toFixed(2)}`;
+                document.getElementById('margemLucro').textContent = `${item.margemLucro.toFixed(1)}%`;
+
+                // Mostrar a mensagem de análise
+                const resultMessage = document.getElementById('resultMessage');
+                if (item.lucroLiquido <= 0) {
+                    resultMessage.className = 'mt-6 p-4 rounded-lg text-center font-medium bg-red-100 text-red-800';
+                    resultMessage.textContent = 'Atenção! Esta corrida resultou em prejuízo. Considere revisar seus custos ou buscar tarifas melhores.';
+                } else if (item.margemLucro < 15) {
+                    resultMessage.className = 'mt-6 p-4 rounded-lg text-center font-medium bg-yellow-100 text-yellow-800';
+                    resultMessage.textContent = 'Sua margem de lucro está baixa. Considere estratégias para reduzir custos ou aumentar receitas.';
+                } else {
+                    resultMessage.className = 'mt-6 p-4 rounded-lg text-center font-medium bg-green-100 text-green-800';
+                    resultMessage.textContent = 'Ótimo trabalho! Sua corrida foi lucrativa com uma boa margem de lucro.';
+                }
+
+                // Mostrar os resultados e mudar para a aba da calculadora
+                form.classList.add('hidden');
+                results.classList.remove('hidden');
+                showTab('calculator');
+
+                // Atualizar os resultados atuais
+                currentResults = item;
+            }
+
+            // Função para excluir um item do histórico
+            function deleteHistoryItem(id) {
+                if (confirm('Tem certeza que deseja excluir este registro?')) {
+                    const history = JSON.parse(localStorage.getItem('driverAppHistory')) || [];
+                    const updatedHistory = history.filter(item => item.id !== id);
+                    localStorage.setItem('driverAppHistory', JSON.stringify(updatedHistory));
+
+                    renderHistory(document.getElementById('searchHistory').value);
+                    renderStats();
+                    showNotification('Registro excluído com sucesso!', 'info');
+                }
+            }
+
+            // Função para renderizar as estatísticas
+            function renderStats() {
+                const history = JSON.parse(localStorage.getItem('driverAppHistory')) || [];
+
+                if (history.length === 0) {
+                    document.getElementById('stats-ganho-total').textContent = 'R$ 0,00';
+                    document.getElementById('stats-custo-total').textContent = 'R$ 0,00';
+                    document.getElementById('stats-lucro-total').textContent = 'R$ 0,00';
+                    document.getElementById('stats-media-lucro').textContent = 'R$ 0,00';
+                    document.getElementById('stats-media-lucro-km').textContent = 'R$ 0,00';
+                    document.getElementById('stats-total-km').textContent = '0 km';
+                    document.getElementById('stats-margem-media').textContent = '0%';
+
+                    document.getElementById('chart-container').innerHTML = `
+                        <div class="text-center text-gray-500 w-full">
+                            Nenhum dado disponível para exibir o gráfico.
+                        </div>
+                    `;
+                    document.getElementById('chart-labels').innerHTML = '';
+                    return;
+                }
+
+                // Calcular estatísticas gerais
+                const ganhoTotal = history.reduce((sum, item) => sum + item.valorRecebido, 0);
+                const custoTotal = history.reduce((sum, item) => sum + item.custoTotal, 0);
+                const lucroTotal = history.reduce((sum, item) => sum + item.lucroLiquido, 0);
+                const totalKm = history.reduce((sum, item) => sum + item.kmPercorrido, 0);
+                const mediaLucro = lucroTotal / history.length;
+                const mediaLucroKm = lucroTotal / totalKm;
+                const margemMedia = (lucroTotal / ganhoTotal) * 100;
+
+                // Atualizar os elementos de estatísticas
+                document.getElementById('stats-ganho-total').textContent = `R$ ${ganhoTotal.toFixed(2)}`;
+                document.getElementById('stats-custo-total').textContent = `R$ ${custoTotal.toFixed(2)}`;
+                document.getElementById('stats-lucro-total').textContent = `R$ ${lucroTotal.toFixed(2)}`;
+                document.getElementById('stats-media-lucro').textContent = `R$ ${mediaLucro.toFixed(2)}`;
+                document.getElementById('stats-media-lucro-km').textContent = `R$ ${mediaLucroKm.toFixed(2)}`;
+                document.getElementById('stats-total-km').textContent = `${totalKm.toFixed(1)} km`;
+                document.getElementById('stats-margem-media').textContent = `${margemMedia.toFixed(1)}%`;
+
+                // Renderizar gráfico
+                renderChart();
+            }
+
+            // Função para renderizar o gráfico
+            function renderChart() {
+                const history = JSON.parse(localStorage.getItem('driverAppHistory')) || [];
+                const period = document.getElementById('stats-period').value;
+                const chartContainer = document.getElementById('chart-container');
+                const chartLabels = document.getElementById('chart-labels');
+
+                // Limpar os contêineres
+                chartContainer.innerHTML = '';
+                chartLabels.innerHTML = '';
+
+                if (history.length === 0) {
+                    chartContainer.innerHTML = `
+                        <div class="text-center text-gray-500 w-full">
+                            Nenhum dado disponível para exibir o gráfico.
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Definir o período de tempo
+                const now = new Date();
+                let startDate;
+
+                if (period === 'week') {
+                    startDate = new Date(now);
+                    startDate.setDate(now.getDate() - 7);
+
+                    // Criar dados para os últimos 7 dias
+                    const days = [];
+                    for (let i = 6; i >= 0; i--) {
+                        const date = new Date(now);
+                        date.setDate(now.getDate() - i);
+                        days.push({
+                            date: date,
+                            label: date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+                            lucro: 0
+                        });
+                    }
+
+                    // Preencher com dados reais
+                    history.forEach(item => {
+                        const itemDate = new Date(item.data);
+                        if (itemDate >= startDate) {
+                            const dayIndex = days.findIndex(day =>
+                                day.date.getDate() === itemDate.getDate() &&
+                                day.date.getMonth() === itemDate.getMonth() &&
+                                day.date.getFullYear() === itemDate.getFullYear()
+                            );
+
+                            if (dayIndex !== -1) {
+                                days[dayIndex].lucro += item.lucroLiquido;
+                            }
+                        }
+                    });
+
+                    // Renderizar barras e labels
+                    renderBars(days);
+
+                } else if (period === 'month') {
+                    startDate = new Date(now);
+                    startDate.setDate(now.getDate() - 30);
+
+                    // Agrupar por semanas
+                    const weeks = [
+                        { label: 'Semana 1', lucro: 0 },
+                        { label: 'Semana 2', lucro: 0 },
+                        { label: 'Semana 3', lucro: 0 },
+                        { label: 'Semana 4', lucro: 0 }
+                    ];
+
+                    // Preencher com dados reais
+                    history.forEach(item => {
+                        const itemDate = new Date(item.data);
+                        if (itemDate >= startDate) {
+                            const daysAgo = Math.floor((now - itemDate) / (1000 * 60 * 60 * 24));
+                            let weekIndex;
+
+                            if (daysAgo < 7) weekIndex = 0;
+                            else if (daysAgo < 14) weekIndex = 1;
+                            else if (daysAgo < 21) weekIndex = 2;
+                            else if (daysAgo < 30) weekIndex = 3;
+
+                            if (weekIndex !== undefined) {
+                                weeks[weekIndex].lucro += item.lucroLiquido;
+                            }
+                        }
+                    });
+
+                    // Renderizar barras e labels
+                    renderBars(weeks);
+
+                } else if (period === 'year') {
+                    startDate = new Date(now);
+                    startDate.setMonth(now.getMonth() - 12);
+
+                    // Agrupar por meses
+                    const months = [];
+                    for (let i = 11; i >= 0; i--) {
+                        const date = new Date(now);
+                        date.setMonth(now.getMonth() - i);
+                        months.push({
+                            date: date,
+                            label: date.toLocaleDateString('pt-BR', { month: 'short' }),
+                            lucro: 0
+                        });
+                    }
+
+                    // Preencher com dados reais
+                    history.forEach(item => {
+                        const itemDate = new Date(item.data);
+                        if (itemDate >= startDate) {
+                            const monthIndex = months.findIndex(month =>
+                                month.date.getMonth() === itemDate.getMonth() &&
+                                month.date.getFullYear() === itemDate.getFullYear()
+                            );
+
+                            if (monthIndex !== -1) {
+                                months[monthIndex].lucro += item.lucroLiquido;
+                            }
+                        }
+                    });
+
+                    // Renderizar barras e labels
+                    renderBars(months);
+                }
+            }
+
+            // Função para renderizar as barras do gráfico
+            function renderBars(data) {
+                const chartContainer = document.getElementById('chart-container');
+                const chartLabels = document.getElementById('chart-labels');
+
+                // Limpar os contêineres
+                chartContainer.innerHTML = '';
+                chartLabels.innerHTML = '';
+
+                // Encontrar o valor máximo para escala
+                const maxLucro = Math.max(...data.map(item => Math.abs(item.lucro)), 1);
+
+                // Renderizar barras e labels
+                data.forEach((item, index) => {
+                    // Criar barra
+                    const bar = document.createElement('div');
+                    const height = Math.abs(item.lucro) / maxLucro * 200;
+
+                    bar.className = 'chart-bar';
+                    bar.style.height = '0px'; // Iniciar com altura zero para animação
+                    bar.style.left = `${index * (100 / data.length) + (50 / data.length)}%`;
+                    bar.style.transform = 'translateX(-50%)';
+
+                    // Definir cor baseada no lucro (positivo ou negativo)
+                    if (item.lucro >= 0) {
+                        bar.style.background = 'linear-gradient(to top, #4f46e5, #7c3aed)';
+                    } else {
+                        bar.style.background = 'linear-gradient(to top, #ef4444, #dc2626)';
+                    }
+
+                    // Adicionar valor no topo da barra
+                    const value = document.createElement('div');
+                    value.className = 'text-xs font-medium';
+                    value.style.position = 'absolute';
+                    value.style.top = item.lucro >= 0 ? '-20px' : '0px';
+                    value.style.width = '100%';
+                    value.style.textAlign = 'center';
+                    value.textContent = `R$ ${Math.abs(item.lucro).toFixed(0)}`;
+
+                    bar.appendChild(value);
+                    chartContainer.appendChild(bar);
+
+                    // Criar label
+                    const label = document.createElement('div');
+                    label.className = 'text-center';
+                    label.style.width = `${100 / data.length}%`;
+                    label.textContent = item.label;
+                    chartLabels.appendChild(label);
+
+                    // Animar a barra após um pequeno delay
+                    setTimeout(() => {
+                        bar.style.height = `${height}px`;
+                    }, 100 * index);
+                });
+            }
+
+            // Função para mostrar notificações
+            function showNotification(message, type = 'success') {
+                // Criar elemento de notificação
+                const notification = document.createElement('div');
+                notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg shadow-lg text-white font-medium z-50 transform transition-all duration-500 translate-y-20 opacity-0`;
+
+                // Definir cor baseada no tipo
+                if (type === 'success') {
+                    notification.classList.add('bg-green-600');
+                } else if (type === 'error') {
+                    notification.classList.add('bg-red-600');
+                } else if (type === 'info') {
+                    notification.classList.add('bg-blue-600');
+                }
+
+                notification.textContent = message;
+                document.body.appendChild(notification);
+
+                // Animar entrada
+                setTimeout(() => {
+                    notification.classList.remove('translate-y-20', 'opacity-0');
+                }, 10);
+
+                // Animar saída e remover
+                setTimeout(() => {
+                    notification.classList.add('translate-y-20', 'opacity-0');
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 500);
+                }, 3000);
+            }
+
+            // Inicializar a página
+            renderHistory();
+            renderStats();
+        });
+    </script>
+    <script>(function () { function c() { var b = a.contentDocument || a.contentWindow.document; if (b) { var d = b.createElement('script'); d.innerHTML = "window.__CF$cv$params={r:'9450c18f951cd072',t:'MTc0ODEzMTI2NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);"; b.getElementsByTagName('head')[0].appendChild(d) } } if (document.body) { var a = document.createElement('iframe'); a.height = 1; a.width = 1; a.style.position = 'absolute'; a.style.top = 0; a.style.left = 0; a.style.border = 'none'; a.style.visibility = 'hidden'; document.body.appendChild(a); if ('loading' !== document.readyState) c(); else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c); else { var e = document.onreadystatechange || function () { }; document.onreadystatechange = function (b) { e(b); 'loading' !== document.readyState && (document.onreadystatechange = e, c()) } } } })();</script>
+</body>
+
+</html>
