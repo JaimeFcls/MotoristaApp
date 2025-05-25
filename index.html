@@ -83,7 +83,7 @@
         <div id="section-calculator" class="p-6">
             <form id="calculatorForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="md:col-span-2">
-                    <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Informações da Corrida</h2>
+                    <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Informações da Jornada</h2>
                 </div>
 
                 <div class="input-group">
@@ -97,11 +97,12 @@
                     <label class="block text-gray-700 font-medium mb-2" for="descricao">Descrição (opcional)</label>
                     <input type="text" id="descricao"
                         class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        placeholder="Ex: Corrida aeroporto">
+                        placeholder="Ex: Turno noturno">
                 </div>
 
                 <div class="input-group">
-                    <label class="block text-gray-700 font-medium mb-2" for="valorRecebido">Valor recebido (R$)</label>
+                    <label class="block text-gray-700 font-medium mb-2" for="valorRecebido">Valor total recebido
+                        (R$)</label>
                     <input type="number" id="valorRecebido"
                         class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         step="0.01" required>
@@ -113,6 +114,20 @@
                     <input type="number" id="kmPercorrido"
                         class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         step="0.1" required>
+                </div>
+
+                <div class="input-group">
+                    <label class="block text-gray-700 font-medium mb-2" for="totalViagens">Total de viagens</label>
+                    <input type="number" id="totalViagens"
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        step="1" required>
+                </div>
+
+                <div class="input-group">
+                    <label class="block text-gray-700 font-medium mb-2" for="horasTrabalhadas">Horas trabalhadas</label>
+                    <input type="number" id="horasTrabalhadas"
+                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        step="0.5" required>
                 </div>
 
                 <div class="md:col-span-2">
@@ -145,28 +160,11 @@
                 </div>
 
                 <div class="input-group">
-                    <label class="block text-gray-700 font-medium mb-2" for="custoDepreciacao">Depreciação do veículo
-                        (R$/km)</label>
-                    <input type="number" id="custoDepreciacao"
-                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        step="0.01" value="0.20">
-                    <p class="text-xs text-gray-500 mt-1">Valor estimado de desvalorização</p>
-                </div>
-
-                <div class="input-group">
-                    <label class="block text-gray-700 font-medium mb-2" for="taxaAplicativo">Taxa do aplicativo
-                        (%)</label>
-                    <input type="number" id="taxaAplicativo"
-                        class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        step="0.1" value="25">
-                </div>
-
-                <div class="input-group">
                     <label class="block text-gray-700 font-medium mb-2" for="outrosCustos">Outros custos (R$)</label>
                     <input type="number" id="outrosCustos"
                         class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         step="0.01" value="0">
-                    <p class="text-xs text-gray-500 mt-1">Estacionamento, lavagem, etc.</p>
+                    <p class="text-xs text-gray-500 mt-1">Estacionamento, lavagem, alimentação, etc.</p>
                 </div>
 
                 <div class="md:col-span-2 mt-4">
@@ -193,20 +191,24 @@
                                 <span id="custoManutencaoTotal" class="font-medium">R$ 0,00</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-700">Depreciação:</span>
-                                <span id="custoDepreciacaoTotal" class="font-medium">R$ 0,00</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-700">Taxa do aplicativo:</span>
-                                <span id="taxaAplicativoTotal" class="font-medium">R$ 0,00</span>
-                            </div>
-                            <div class="flex justify-between">
                                 <span class="text-gray-700">Outros custos:</span>
                                 <span id="outrosCustosTotal" class="font-medium">R$ 0,00</span>
                             </div>
                             <div class="flex justify-between pt-2 border-t border-red-200">
                                 <span class="text-gray-800 font-bold">CUSTO TOTAL:</span>
                                 <span id="custoTotal" class="font-bold text-red-700">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-700">Custo por viagem:</span>
+                                <span id="custoPorViagem" class="font-medium">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-700">Custo por hora:</span>
+                                <span id="custoPorHora" class="font-medium">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-700">Custo por km:</span>
+                                <span id="custoPorKm" class="font-medium">R$ 0,00</span>
                             </div>
                         </div>
                     </div>
@@ -219,16 +221,32 @@
                                 <span id="valorRecebidoTotal" class="font-medium">R$ 0,00</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-700">Custo por km:</span>
-                                <span id="custoPorKm" class="font-medium">R$ 0,00</span>
+                                <span class="text-gray-700">Faturamento por viagem:</span>
+                                <span id="faturamentoPorViagem" class="font-medium">R$ 0,00</span>
                             </div>
                             <div class="flex justify-between">
-                                <span class="text-gray-700">Lucro por km:</span>
-                                <span id="lucroPorKm" class="font-medium">R$ 0,00</span>
+                                <span class="text-gray-700">Faturamento por hora:</span>
+                                <span id="faturamentoPorHora" class="font-medium">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-700">Faturamento por km:</span>
+                                <span id="faturamentoPorKm" class="font-medium">R$ 0,00</span>
                             </div>
                             <div class="flex justify-between pt-2 border-t border-green-200">
                                 <span class="text-gray-800 font-bold">LUCRO LÍQUIDO:</span>
                                 <span id="lucroLiquido" class="font-bold text-green-700">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-700">Lucro por viagem:</span>
+                                <span id="lucroPorViagem" class="font-medium">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-700">Lucro por hora:</span>
+                                <span id="lucroPorHora" class="font-medium">R$ 0,00</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-700">Lucro por km:</span>
+                                <span id="lucroPorKm" class="font-medium">R$ 0,00</span>
                             </div>
                             <div class="flex justify-between">
                                 <span class="text-gray-700">Margem de lucro:</span>
@@ -256,7 +274,7 @@
         <!-- Seção do Histórico -->
         <div id="section-history" class="p-6 hidden">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-800">Histórico de Corridas</h2>
+                <h2 class="text-2xl font-bold text-gray-800">Histórico de Jornadas</h2>
                 <div>
                     <button id="clearHistory"
                         class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300 ease-in-out">
@@ -274,7 +292,7 @@
             <div id="historyList" class="space-y-4 max-h-[500px] overflow-y-auto">
                 <!-- O histórico será preenchido dinamicamente -->
                 <div class="text-center text-gray-500 py-8">
-                    Nenhum registro encontrado. Calcule e salve suas corridas para visualizá-las aqui.
+                    Nenhum registro encontrado. Calcule e salve suas jornadas para visualizá-las aqui.
                 </div>
             </div>
         </div>
@@ -331,10 +349,15 @@
             <div>
                 <h2 class="text-xl font-bold text-gray-800 mb-4">Métricas de Desempenho</h2>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="bg-white p-4 rounded-xl shadow-md">
-                        <h3 class="text-sm font-medium text-gray-500 mb-2">Média de Lucro por Corrida</h3>
-                        <p id="stats-media-lucro" class="text-xl font-bold text-gray-800">R$ 0,00</p>
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">Média de Lucro por Viagem</h3>
+                        <p id="stats-media-lucro-viagem" class="text-xl font-bold text-gray-800">R$ 0,00</p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl shadow-md">
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">Média de Lucro por Hora</h3>
+                        <p id="stats-media-lucro-hora" class="text-xl font-bold text-gray-800">R$ 0,00</p>
                     </div>
 
                     <div class="bg-white p-4 rounded-xl shadow-md">
@@ -343,13 +366,18 @@
                     </div>
 
                     <div class="bg-white p-4 rounded-xl shadow-md">
-                        <h3 class="text-sm font-medium text-gray-500 mb-2">Total de KM Percorridos</h3>
-                        <p id="stats-total-km" class="text-xl font-bold text-gray-800">0 km</p>
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">Total de Viagens</h3>
+                        <p id="stats-total-viagens" class="text-xl font-bold text-gray-800">0</p>
                     </div>
 
                     <div class="bg-white p-4 rounded-xl shadow-md">
-                        <h3 class="text-sm font-medium text-gray-500 mb-2">Margem de Lucro Média</h3>
-                        <p id="stats-margem-media" class="text-xl font-bold text-gray-800">0%</p>
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">Total de Horas</h3>
+                        <p id="stats-total-horas" class="text-xl font-bold text-gray-800">0h</p>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl shadow-md">
+                        <h3 class="text-sm font-medium text-gray-500 mb-2">Total de KM</h3>
+                        <p id="stats-total-km" class="text-xl font-bold text-gray-800">0 km</p>
                     </div>
                 </div>
             </div>
@@ -446,7 +474,7 @@
             saveResultBtn.addEventListener('click', function () {
                 if (currentResults) {
                     saveToHistory(currentResults);
-                    showNotification('Corrida salva com sucesso!', 'success');
+                    showNotification('Jornada salva com sucesso!', 'success');
 
                     // Atualizar histórico e estatísticas
                     renderHistory();
@@ -475,54 +503,70 @@
             function calculateResults() {
                 // Obter valores do formulário
                 const data = document.getElementById('data').value;
-                const descricao = document.getElementById('descricao').value || 'Corrida';
+                const descricao = document.getElementById('descricao').value || 'Jornada';
                 const valorRecebido = parseFloat(document.getElementById('valorRecebido').value);
                 const kmPercorrido = parseFloat(document.getElementById('kmPercorrido').value);
+                const totalViagens = parseInt(document.getElementById('totalViagens').value);
+                const horasTrabalhadas = parseFloat(document.getElementById('horasTrabalhadas').value);
                 const precoCombustivel = parseFloat(document.getElementById('precoCombustivel').value);
                 const consumoMedio = parseFloat(document.getElementById('consumoMedio').value);
                 const custoManutencao = parseFloat(document.getElementById('custoManutencao').value);
-                const custoDepreciacao = parseFloat(document.getElementById('custoDepreciacao').value);
-                const taxaAplicativo = parseFloat(document.getElementById('taxaAplicativo').value) / 100;
                 const outrosCustos = parseFloat(document.getElementById('outrosCustos').value);
 
                 // Calcular custos
                 const litrosUsados = kmPercorrido / consumoMedio;
                 const custoCombustivel = litrosUsados * precoCombustivel;
                 const custoManutencaoTotal = kmPercorrido * custoManutencao;
-                const custoDepreciacaoTotal = kmPercorrido * custoDepreciacao;
-                const taxaAplicativoTotal = valorRecebido * taxaAplicativo;
 
-                const custoTotal = custoCombustivel + custoManutencaoTotal + custoDepreciacaoTotal + taxaAplicativoTotal + outrosCustos;
+                const custoTotal = custoCombustivel + custoManutencaoTotal + outrosCustos;
                 const lucroLiquido = valorRecebido - custoTotal;
+
+                // Calcular métricas por viagem, hora e km
+                const custoPorViagem = custoTotal / totalViagens;
+                const custoPorHora = custoTotal / horasTrabalhadas;
                 const custoPorKm = custoTotal / kmPercorrido;
+
+                const faturamentoPorViagem = valorRecebido / totalViagens;
+                const faturamentoPorHora = valorRecebido / horasTrabalhadas;
+                const faturamentoPorKm = valorRecebido / kmPercorrido;
+
+                const lucroPorViagem = lucroLiquido / totalViagens;
+                const lucroPorHora = lucroLiquido / horasTrabalhadas;
                 const lucroPorKm = lucroLiquido / kmPercorrido;
+
                 const margemLucro = (lucroLiquido / valorRecebido) * 100;
 
-                // Atualizar resultados na interface
+                // Atualizar resultados na interface - Custos
                 document.getElementById('custoCombustivel').textContent = `R$ ${custoCombustivel.toFixed(2)}`;
                 document.getElementById('custoManutencaoTotal').textContent = `R$ ${custoManutencaoTotal.toFixed(2)}`;
-                document.getElementById('custoDepreciacaoTotal').textContent = `R$ ${custoDepreciacaoTotal.toFixed(2)}`;
-                document.getElementById('taxaAplicativoTotal').textContent = `R$ ${taxaAplicativoTotal.toFixed(2)}`;
                 document.getElementById('outrosCustosTotal').textContent = `R$ ${outrosCustos.toFixed(2)}`;
                 document.getElementById('custoTotal').textContent = `R$ ${custoTotal.toFixed(2)}`;
-
-                document.getElementById('valorRecebidoTotal').textContent = `R$ ${valorRecebido.toFixed(2)}`;
+                document.getElementById('custoPorViagem').textContent = `R$ ${custoPorViagem.toFixed(2)}`;
+                document.getElementById('custoPorHora').textContent = `R$ ${custoPorHora.toFixed(2)}`;
                 document.getElementById('custoPorKm').textContent = `R$ ${custoPorKm.toFixed(2)}`;
-                document.getElementById('lucroPorKm').textContent = `R$ ${lucroPorKm.toFixed(2)}`;
+
+                // Atualizar resultados na interface - Faturamento e Lucro
+                document.getElementById('valorRecebidoTotal').textContent = `R$ ${valorRecebido.toFixed(2)}`;
+                document.getElementById('faturamentoPorViagem').textContent = `R$ ${faturamentoPorViagem.toFixed(2)}`;
+                document.getElementById('faturamentoPorHora').textContent = `R$ ${faturamentoPorHora.toFixed(2)}`;
+                document.getElementById('faturamentoPorKm').textContent = `R$ ${faturamentoPorKm.toFixed(2)}`;
                 document.getElementById('lucroLiquido').textContent = `R$ ${lucroLiquido.toFixed(2)}`;
+                document.getElementById('lucroPorViagem').textContent = `R$ ${lucroPorViagem.toFixed(2)}`;
+                document.getElementById('lucroPorHora').textContent = `R$ ${lucroPorHora.toFixed(2)}`;
+                document.getElementById('lucroPorKm').textContent = `R$ ${lucroPorKm.toFixed(2)}`;
                 document.getElementById('margemLucro').textContent = `${margemLucro.toFixed(1)}%`;
 
                 // Mensagem de análise
                 const resultMessage = document.getElementById('resultMessage');
                 if (lucroLiquido <= 0) {
                     resultMessage.className = 'mt-6 p-4 rounded-lg text-center font-medium bg-red-100 text-red-800';
-                    resultMessage.textContent = 'Atenção! Esta corrida resultou em prejuízo. Considere revisar seus custos ou buscar tarifas melhores.';
+                    resultMessage.textContent = 'Atenção! Esta jornada resultou em prejuízo. Considere revisar seus custos ou buscar mais viagens.';
                 } else if (margemLucro < 15) {
                     resultMessage.className = 'mt-6 p-4 rounded-lg text-center font-medium bg-yellow-100 text-yellow-800';
                     resultMessage.textContent = 'Sua margem de lucro está baixa. Considere estratégias para reduzir custos ou aumentar receitas.';
                 } else {
                     resultMessage.className = 'mt-6 p-4 rounded-lg text-center font-medium bg-green-100 text-green-800';
-                    resultMessage.textContent = 'Ótimo trabalho! Sua corrida foi lucrativa com uma boa margem de lucro.';
+                    resultMessage.textContent = 'Ótimo trabalho! Sua jornada foi lucrativa com uma boa margem de lucro.';
                 }
 
                 // Retornar os resultados para salvar no histórico
@@ -532,19 +576,24 @@
                     descricao,
                     valorRecebido,
                     kmPercorrido,
+                    totalViagens,
+                    horasTrabalhadas,
                     precoCombustivel,
                     consumoMedio,
                     custoManutencao,
-                    custoDepreciacao,
-                    taxaAplicativo: taxaAplicativo * 100,
                     outrosCustos,
                     custoCombustivel,
                     custoManutencaoTotal,
-                    custoDepreciacaoTotal,
-                    taxaAplicativoTotal,
                     custoTotal,
-                    lucroLiquido,
+                    custoPorViagem,
+                    custoPorHora,
                     custoPorKm,
+                    faturamentoPorViagem,
+                    faturamentoPorHora,
+                    faturamentoPorKm,
+                    lucroLiquido,
+                    lucroPorViagem,
+                    lucroPorHora,
                     lucroPorKm,
                     margemLucro,
                     timestamp: Date.now()
@@ -576,7 +625,7 @@
                 if (filteredHistory.length === 0) {
                     historyList.innerHTML = `
                         <div class="text-center text-gray-500 py-8">
-                            ${searchTerm ? 'Nenhum resultado encontrado para sua busca.' : 'Nenhum registro encontrado. Calcule e salve suas corridas para visualizá-las aqui.'}
+                            ${searchTerm ? 'Nenhum resultado encontrado para sua busca.' : 'Nenhum registro encontrado. Calcule e salve suas jornadas para visualizá-las aqui.'}
                         </div>
                     `;
                     return;
@@ -595,7 +644,7 @@
                         <div class="flex justify-between items-start">
                             <div>
                                 <h3 class="font-bold text-gray-800">${item.descricao}</h3>
-                                <p class="text-sm text-gray-500">${formattedDate} • ${item.kmPercorrido.toFixed(1)} km</p>
+                                <p class="text-sm text-gray-500">${formattedDate} • ${item.horasTrabalhadas}h • ${item.totalViagens} viagens</p>
                             </div>
                             <div class="flex space-x-2">
                                 <button class="view-details text-blue-600 hover:text-blue-800" data-id="${item.id}">
@@ -606,19 +655,39 @@
                                 </button>
                             </div>
                         </div>
-                        <div class="flex justify-between mt-3">
+                        <div class="grid grid-cols-3 gap-2 mt-3">
                             <div>
-                                <p class="text-sm text-gray-600">Valor recebido</p>
+                                <p class="text-sm text-gray-600">Faturamento</p>
                                 <p class="font-medium">R$ ${item.valorRecebido.toFixed(2)}</p>
                             </div>
                             <div>
-                                <p class="text-sm text-gray-600">Custo total</p>
+                                <p class="text-sm text-gray-600">Custos</p>
                                 <p class="font-medium">R$ ${item.custoTotal.toFixed(2)}</p>
                             </div>
                             <div>
-                                <p class="text-sm text-gray-600">Lucro líquido</p>
+                                <p class="text-sm text-gray-600">Lucro</p>
                                 <p class="font-medium ${item.lucroLiquido >= 0 ? 'text-green-600' : 'text-red-600'}">
                                     R$ ${item.lucroLiquido.toFixed(2)}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 mt-2">
+                            <div>
+                                <p class="text-sm text-gray-600">Lucro/hora</p>
+                                <p class="font-medium ${item.lucroPorHora >= 0 ? 'text-green-600' : 'text-red-600'}">
+                                    R$ ${item.lucroPorHora.toFixed(2)}
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Lucro/viagem</p>
+                                <p class="font-medium ${item.lucroPorViagem >= 0 ? 'text-green-600' : 'text-red-600'}">
+                                    R$ ${item.lucroPorViagem.toFixed(2)}
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Margem</p>
+                                <p class="font-medium ${item.margemLucro >= 0 ? 'text-green-600' : 'text-red-600'}">
+                                    ${item.margemLucro.toFixed(1)}%
                                 </p>
                             </div>
                         </div>
@@ -651,38 +720,44 @@
                 document.getElementById('descricao').value = item.descricao;
                 document.getElementById('valorRecebido').value = item.valorRecebido;
                 document.getElementById('kmPercorrido').value = item.kmPercorrido;
+                document.getElementById('totalViagens').value = item.totalViagens;
+                document.getElementById('horasTrabalhadas').value = item.horasTrabalhadas;
                 document.getElementById('precoCombustivel').value = item.precoCombustivel;
                 document.getElementById('consumoMedio').value = item.consumoMedio;
                 document.getElementById('custoManutencao').value = item.custoManutencao;
-                document.getElementById('custoDepreciacao').value = item.custoDepreciacao;
-                document.getElementById('taxaAplicativo').value = item.taxaAplicativo;
                 document.getElementById('outrosCustos').value = item.outrosCustos;
 
-                // Atualizar os resultados
+                // Atualizar os resultados - Custos
                 document.getElementById('custoCombustivel').textContent = `R$ ${item.custoCombustivel.toFixed(2)}`;
                 document.getElementById('custoManutencaoTotal').textContent = `R$ ${item.custoManutencaoTotal.toFixed(2)}`;
-                document.getElementById('custoDepreciacaoTotal').textContent = `R$ ${item.custoDepreciacaoTotal.toFixed(2)}`;
-                document.getElementById('taxaAplicativoTotal').textContent = `R$ ${item.taxaAplicativoTotal.toFixed(2)}`;
                 document.getElementById('outrosCustosTotal').textContent = `R$ ${item.outrosCustos.toFixed(2)}`;
                 document.getElementById('custoTotal').textContent = `R$ ${item.custoTotal.toFixed(2)}`;
-
-                document.getElementById('valorRecebidoTotal').textContent = `R$ ${item.valorRecebido.toFixed(2)}`;
+                document.getElementById('custoPorViagem').textContent = `R$ ${item.custoPorViagem.toFixed(2)}`;
+                document.getElementById('custoPorHora').textContent = `R$ ${item.custoPorHora.toFixed(2)}`;
                 document.getElementById('custoPorKm').textContent = `R$ ${item.custoPorKm.toFixed(2)}`;
-                document.getElementById('lucroPorKm').textContent = `R$ ${item.lucroPorKm.toFixed(2)}`;
+
+                // Atualizar os resultados - Faturamento e Lucro
+                document.getElementById('valorRecebidoTotal').textContent = `R$ ${item.valorRecebido.toFixed(2)}`;
+                document.getElementById('faturamentoPorViagem').textContent = `R$ ${item.faturamentoPorViagem.toFixed(2)}`;
+                document.getElementById('faturamentoPorHora').textContent = `R$ ${item.faturamentoPorHora.toFixed(2)}`;
+                document.getElementById('faturamentoPorKm').textContent = `R$ ${item.faturamentoPorKm.toFixed(2)}`;
                 document.getElementById('lucroLiquido').textContent = `R$ ${item.lucroLiquido.toFixed(2)}`;
+                document.getElementById('lucroPorViagem').textContent = `R$ ${item.lucroPorViagem.toFixed(2)}`;
+                document.getElementById('lucroPorHora').textContent = `R$ ${item.lucroPorHora.toFixed(2)}`;
+                document.getElementById('lucroPorKm').textContent = `R$ ${item.lucroPorKm.toFixed(2)}`;
                 document.getElementById('margemLucro').textContent = `${item.margemLucro.toFixed(1)}%`;
 
                 // Mostrar a mensagem de análise
                 const resultMessage = document.getElementById('resultMessage');
                 if (item.lucroLiquido <= 0) {
                     resultMessage.className = 'mt-6 p-4 rounded-lg text-center font-medium bg-red-100 text-red-800';
-                    resultMessage.textContent = 'Atenção! Esta corrida resultou em prejuízo. Considere revisar seus custos ou buscar tarifas melhores.';
+                    resultMessage.textContent = 'Atenção! Esta jornada resultou em prejuízo. Considere revisar seus custos ou buscar mais viagens.';
                 } else if (item.margemLucro < 15) {
                     resultMessage.className = 'mt-6 p-4 rounded-lg text-center font-medium bg-yellow-100 text-yellow-800';
                     resultMessage.textContent = 'Sua margem de lucro está baixa. Considere estratégias para reduzir custos ou aumentar receitas.';
                 } else {
                     resultMessage.className = 'mt-6 p-4 rounded-lg text-center font-medium bg-green-100 text-green-800';
-                    resultMessage.textContent = 'Ótimo trabalho! Sua corrida foi lucrativa com uma boa margem de lucro.';
+                    resultMessage.textContent = 'Ótimo trabalho! Sua jornada foi lucrativa com uma boa margem de lucro.';
                 }
 
                 // Mostrar os resultados e mudar para a aba da calculadora
@@ -715,10 +790,12 @@
                     document.getElementById('stats-ganho-total').textContent = 'R$ 0,00';
                     document.getElementById('stats-custo-total').textContent = 'R$ 0,00';
                     document.getElementById('stats-lucro-total').textContent = 'R$ 0,00';
-                    document.getElementById('stats-media-lucro').textContent = 'R$ 0,00';
+                    document.getElementById('stats-media-lucro-viagem').textContent = 'R$ 0,00';
+                    document.getElementById('stats-media-lucro-hora').textContent = 'R$ 0,00';
                     document.getElementById('stats-media-lucro-km').textContent = 'R$ 0,00';
+                    document.getElementById('stats-total-viagens').textContent = '0';
+                    document.getElementById('stats-total-horas').textContent = '0h';
                     document.getElementById('stats-total-km').textContent = '0 km';
-                    document.getElementById('stats-margem-media').textContent = '0%';
 
                     document.getElementById('chart-container').innerHTML = `
                         <div class="text-center text-gray-500 w-full">
@@ -733,19 +810,24 @@
                 const ganhoTotal = history.reduce((sum, item) => sum + item.valorRecebido, 0);
                 const custoTotal = history.reduce((sum, item) => sum + item.custoTotal, 0);
                 const lucroTotal = history.reduce((sum, item) => sum + item.lucroLiquido, 0);
+                const totalViagens = history.reduce((sum, item) => sum + item.totalViagens, 0);
+                const totalHoras = history.reduce((sum, item) => sum + item.horasTrabalhadas, 0);
                 const totalKm = history.reduce((sum, item) => sum + item.kmPercorrido, 0);
-                const mediaLucro = lucroTotal / history.length;
+
+                const mediaLucroViagem = lucroTotal / totalViagens;
+                const mediaLucroHora = lucroTotal / totalHoras;
                 const mediaLucroKm = lucroTotal / totalKm;
-                const margemMedia = (lucroTotal / ganhoTotal) * 100;
 
                 // Atualizar os elementos de estatísticas
                 document.getElementById('stats-ganho-total').textContent = `R$ ${ganhoTotal.toFixed(2)}`;
                 document.getElementById('stats-custo-total').textContent = `R$ ${custoTotal.toFixed(2)}`;
                 document.getElementById('stats-lucro-total').textContent = `R$ ${lucroTotal.toFixed(2)}`;
-                document.getElementById('stats-media-lucro').textContent = `R$ ${mediaLucro.toFixed(2)}`;
+                document.getElementById('stats-media-lucro-viagem').textContent = `R$ ${mediaLucroViagem.toFixed(2)}`;
+                document.getElementById('stats-media-lucro-hora').textContent = `R$ ${mediaLucroHora.toFixed(2)}`;
                 document.getElementById('stats-media-lucro-km').textContent = `R$ ${mediaLucroKm.toFixed(2)}`;
+                document.getElementById('stats-total-viagens').textContent = totalViagens;
+                document.getElementById('stats-total-horas').textContent = `${totalHoras.toFixed(1)}h`;
                 document.getElementById('stats-total-km').textContent = `${totalKm.toFixed(1)} km`;
-                document.getElementById('stats-margem-media').textContent = `${margemMedia.toFixed(1)}%`;
 
                 // Renderizar gráfico
                 renderChart();
@@ -972,7 +1054,7 @@
             renderStats();
         });
     </script>
-    <script>(function () { function c() { var b = a.contentDocument || a.contentWindow.document; if (b) { var d = b.createElement('script'); d.innerHTML = "window.__CF$cv$params={r:'9450c18f951cd072',t:'MTc0ODEzMTI2NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);"; b.getElementsByTagName('head')[0].appendChild(d) } } if (document.body) { var a = document.createElement('iframe'); a.height = 1; a.width = 1; a.style.position = 'absolute'; a.style.top = 0; a.style.left = 0; a.style.border = 'none'; a.style.visibility = 'hidden'; document.body.appendChild(a); if ('loading' !== document.readyState) c(); else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c); else { var e = document.onreadystatechange || function () { }; document.onreadystatechange = function (b) { e(b); 'loading' !== document.readyState && (document.onreadystatechange = e, c()) } } } })();</script>
+    <script>(function () { function c() { var b = a.contentDocument || a.contentWindow.document; if (b) { var d = b.createElement('script'); d.innerHTML = "window.__CF$cv$params={r:'9455489fe4ee79ab',t:'MTc0ODE3ODczOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);"; b.getElementsByTagName('head')[0].appendChild(d) } } if (document.body) { var a = document.createElement('iframe'); a.height = 1; a.width = 1; a.style.position = 'absolute'; a.style.top = 0; a.style.left = 0; a.style.border = 'none'; a.style.visibility = 'hidden'; document.body.appendChild(a); if ('loading' !== document.readyState) c(); else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c); else { var e = document.onreadystatechange || function () { }; document.onreadystatechange = function (b) { e(b); 'loading' !== document.readyState && (document.onreadystatechange = e, c()) } } } })();</script>
 </body>
 
 </html>
