@@ -125,9 +125,10 @@
 
                 <div class="input-group">
                     <label class="block text-gray-700 font-medium mb-2" for="horasTrabalhadas">Horas trabalhadas</label>
-                    <input type="number" id="horasTrabalhadas"
+                    <input type="text" id="horasTrabalhadas"
                         class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                        step="0.5" required>
+                        placeholder="Ex: 8:30 ou 8,5" required>
+                    <p class="text-xs text-gray-500 mt-1">Use formato 13:10 ou 13,10 para horas e minutos</p>
                 </div>
 
                 <div class="md:col-span-2">
@@ -457,13 +458,57 @@
                 }
             }
 
+            // Função para converter o formato de horas (13:10 ou 13,10) para decimal (13.17)
+            function parseHorasTrabalhadas(horasInput) {
+                // Verificar se o formato é HH:MM
+                if (horasInput.includes(':')) {
+                    const [horas, minutos] = horasInput.split(':');
+                    return parseFloat(horas) + (parseFloat(minutos) / 60);
+                }
+                // Verificar se o formato é HH,MM
+                else if (horasInput.includes(',')) {
+                    const [horas, minutos] = horasInput.split(',');
+                    // Se minutos tem 2 dígitos, tratar como minutos (ex: 13,30 = 13.5)
+                    if (minutos.length === 2) {
+                        return parseFloat(horas) + (parseFloat(minutos) / 60);
+                    }
+                    // Se minutos tem 1 dígito ou mais de 2, tratar como decimal (ex: 13,5 = 13.5)
+                    else {
+                        return parseFloat(horas + '.' + minutos);
+                    }
+                }
+                // Se não tem : ou ,, tentar converter diretamente
+                else {
+                    return parseFloat(horasInput);
+                }
+            }
+
+            // Função para formatar horas decimais para o formato HH:MM
+            function formatHorasParaExibicao(horasDecimal) {
+                const horas = Math.floor(horasDecimal);
+                const minutos = Math.round((horasDecimal - horas) * 60);
+                return `${horas}h${minutos > 0 ? minutos + 'm' : ''}`;
+            }
+
             // Manipuladores de eventos
             form.addEventListener('submit', function (e) {
                 e.preventDefault();
-                currentResults = calculateResults();
-                form.classList.add('hidden');
-                results.classList.remove('hidden');
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                // Validar o formato das horas trabalhadas
+                const horasTrabalhadasInput = document.getElementById('horasTrabalhadas').value;
+                try {
+                    const horasDecimal = parseHorasTrabalhadas(horasTrabalhadasInput);
+                    if (isNaN(horasDecimal) || horasDecimal <= 0) {
+                        throw new Error('Formato de horas inválido');
+                    }
+
+                    currentResults = calculateResults(horasDecimal);
+                    form.classList.add('hidden');
+                    results.classList.remove('hidden');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } catch (error) {
+                    showNotification('Formato de horas inválido. Use HH:MM ou HH,MM ou número decimal.', 'error');
+                }
             });
 
             newCalculationBtn.addEventListener('click', function () {
@@ -500,14 +545,14 @@
             });
 
             // Função para calcular os resultados
-            function calculateResults() {
+            function calculateResults(horasDecimal) {
                 // Obter valores do formulário
                 const data = document.getElementById('data').value;
                 const descricao = document.getElementById('descricao').value || 'Jornada';
                 const valorRecebido = parseFloat(document.getElementById('valorRecebido').value);
                 const kmPercorrido = parseFloat(document.getElementById('kmPercorrido').value);
                 const totalViagens = parseInt(document.getElementById('totalViagens').value);
-                const horasTrabalhadas = parseFloat(document.getElementById('horasTrabalhadas').value);
+                const horasTrabalhadas = horasDecimal;
                 const precoCombustivel = parseFloat(document.getElementById('precoCombustivel').value);
                 const consumoMedio = parseFloat(document.getElementById('consumoMedio').value);
                 const custoManutencao = parseFloat(document.getElementById('custoManutencao').value);
@@ -578,6 +623,7 @@
                     kmPercorrido,
                     totalViagens,
                     horasTrabalhadas,
+                    horasTrabalhadasFormatada: formatHorasParaExibicao(horasTrabalhadas),
                     precoCombustivel,
                     consumoMedio,
                     custoManutencao,
@@ -639,12 +685,13 @@
                         (item.lucroLiquido >= 0 ? 'border-green-500' : 'border-red-500');
 
                     const formattedDate = new Date(item.data).toLocaleDateString('pt-BR');
+                    const horasExibicao = item.horasTrabalhadasFormatada || formatHorasParaExibicao(item.horasTrabalhadas);
 
                     historyItem.innerHTML = `
                         <div class="flex justify-between items-start">
                             <div>
                                 <h3 class="font-bold text-gray-800">${item.descricao}</h3>
-                                <p class="text-sm text-gray-500">${formattedDate} • ${item.horasTrabalhadas}h • ${item.totalViagens} viagens</p>
+                                <p class="text-sm text-gray-500">${formattedDate} • ${horasExibicao} • ${item.totalViagens} viagens</p>
                             </div>
                             <div class="flex space-x-2">
                                 <button class="view-details text-blue-600 hover:text-blue-800" data-id="${item.id}">
@@ -721,7 +768,15 @@
                 document.getElementById('valorRecebido').value = item.valorRecebido;
                 document.getElementById('kmPercorrido').value = item.kmPercorrido;
                 document.getElementById('totalViagens').value = item.totalViagens;
-                document.getElementById('horasTrabalhadas').value = item.horasTrabalhadas;
+
+                // Formatar horas trabalhadas para exibição no campo
+                const horasInput = document.getElementById('horasTrabalhadas');
+                if (item.horasTrabalhadas) {
+                    const horas = Math.floor(item.horasTrabalhadas);
+                    const minutos = Math.round((item.horasTrabalhadas - horas) * 60);
+                    horasInput.value = `${horas}:${minutos.toString().padStart(2, '0')}`;
+                }
+
                 document.getElementById('precoCombustivel').value = item.precoCombustivel;
                 document.getElementById('consumoMedio').value = item.consumoMedio;
                 document.getElementById('custoManutencao').value = item.custoManutencao;
@@ -826,7 +881,7 @@
                 document.getElementById('stats-media-lucro-hora').textContent = `R$ ${mediaLucroHora.toFixed(2)}`;
                 document.getElementById('stats-media-lucro-km').textContent = `R$ ${mediaLucroKm.toFixed(2)}`;
                 document.getElementById('stats-total-viagens').textContent = totalViagens;
-                document.getElementById('stats-total-horas').textContent = `${totalHoras.toFixed(1)}h`;
+                document.getElementById('stats-total-horas').textContent = formatHorasParaExibicao(totalHoras);
                 document.getElementById('stats-total-km').textContent = `${totalKm.toFixed(1)} km`;
 
                 // Renderizar gráfico
@@ -1054,7 +1109,7 @@
             renderStats();
         });
     </script>
-    <script>(function () { function c() { var b = a.contentDocument || a.contentWindow.document; if (b) { var d = b.createElement('script'); d.innerHTML = "window.__CF$cv$params={r:'9455489fe4ee79ab',t:'MTc0ODE3ODczOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);"; b.getElementsByTagName('head')[0].appendChild(d) } } if (document.body) { var a = document.createElement('iframe'); a.height = 1; a.width = 1; a.style.position = 'absolute'; a.style.top = 0; a.style.left = 0; a.style.border = 'none'; a.style.visibility = 'hidden'; document.body.appendChild(a); if ('loading' !== document.readyState) c(); else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c); else { var e = document.onreadystatechange || function () { }; document.onreadystatechange = function (b) { e(b); 'loading' !== document.readyState && (document.onreadystatechange = e, c()) } } } })();</script>
+    <script>(function () { function c() { var b = a.contentDocument || a.contentWindow.document; if (b) { var d = b.createElement('script'); d.innerHTML = "window.__CF$cv$params={r:'945585b97082d06c',t:'MTc0ODE4MTI0Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);"; b.getElementsByTagName('head')[0].appendChild(d) } } if (document.body) { var a = document.createElement('iframe'); a.height = 1; a.width = 1; a.style.position = 'absolute'; a.style.top = 0; a.style.left = 0; a.style.border = 'none'; a.style.visibility = 'hidden'; document.body.appendChild(a); if ('loading' !== document.readyState) c(); else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c); else { var e = document.onreadystatechange || function () { }; document.onreadystatechange = function (b) { e(b); 'loading' !== document.readyState && (document.onreadystatechange = e, c()) } } } })();</script>
 </body>
 
 </html>
